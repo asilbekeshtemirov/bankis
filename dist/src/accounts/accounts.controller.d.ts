@@ -11,8 +11,8 @@ export declare class AccountsController {
             id: string;
         };
     } & {
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -33,8 +33,8 @@ export declare class AccountsController {
                 transactionsTo: number;
             };
         } & {
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -55,8 +55,8 @@ export declare class AccountsController {
             transactionsTo: number;
         };
     } & {
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -78,8 +78,8 @@ export declare class AccountsController {
         };
         transactionsFrom: ({
             toAccount: {
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -94,11 +94,11 @@ export declare class AccountsController {
                 id: string;
             };
         } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -106,14 +106,15 @@ export declare class AccountsController {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
+            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
         transactionsTo: ({
             fromAccount: {
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -128,11 +129,11 @@ export declare class AccountsController {
                 id: string;
             };
         } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -140,13 +141,14 @@ export declare class AccountsController {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
+            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
     } & {
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -162,8 +164,8 @@ export declare class AccountsController {
             id: string;
         };
     } & {
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -172,8 +174,8 @@ export declare class AccountsController {
         userId: string;
     }>;
     remove(user: any, id: string): Promise<{
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;

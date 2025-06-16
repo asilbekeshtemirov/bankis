@@ -4,19 +4,19 @@ export declare class LanguagesService {
     private prisma;
     constructor(prisma: PrismaService);
     createLanguage(createLanguageDto: CreateLanguageDto): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     findAllLanguages(): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }[]>;
     findOneLanguage(id: string): Promise<{
@@ -32,36 +32,36 @@ export declare class LanguagesService {
             value: string;
         }[];
     } & {
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     updateLanguage(id: string, updateLanguageDto: UpdateLanguageDto): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     removeLanguage(id: string): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     createTranslation(createTranslationDto: CreateTranslationDto): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -74,11 +74,11 @@ export declare class LanguagesService {
     }>;
     findAllTranslations(languageId?: string): Promise<({
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -91,11 +91,11 @@ export declare class LanguagesService {
     })[]>;
     findOneTranslation(id: string): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -108,11 +108,11 @@ export declare class LanguagesService {
     }>;
     updateTranslation(id: string, updateTranslationDto: UpdateTranslationDto): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {

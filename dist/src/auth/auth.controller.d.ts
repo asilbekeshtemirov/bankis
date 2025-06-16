@@ -9,19 +9,19 @@ export declare class AuthController {
             access_token: string;
             user: {
                 language: {
-                    name: string;
-                    isActive: boolean;
                     id: string;
+                    isActive: boolean;
                     createdAt: Date;
                     updatedAt: Date;
+                    name: string;
                     code: string;
                 };
                 email: string;
                 firstName: string;
                 lastName: string;
+                id: string;
                 phone: string;
                 isActive: boolean;
-                id: string;
                 createdAt: Date;
             };
         };
@@ -35,12 +35,12 @@ export declare class AuthController {
                 password: string | null;
                 firstName: string | null;
                 lastName: string | null;
-                phone: string | null;
                 roleId: string;
                 languageId: string;
-                isActive: boolean;
                 id: string;
                 googleId: string | null;
+                phone: string | null;
+                isActive: boolean;
                 telegramId: string | null;
                 createdAt: Date;
                 updatedAt: Date;
@@ -57,12 +57,12 @@ export declare class AuthController {
                 password: string | null;
                 firstName: string | null;
                 lastName: string | null;
-                phone: string | null;
                 roleId: string;
                 languageId: string;
-                isActive: boolean;
                 id: string;
                 googleId: string | null;
+                phone: string | null;
+                isActive: boolean;
                 telegramId: string | null;
                 createdAt: Date;
                 updatedAt: Date;

@@ -1,197 +1,76 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
-import { TelegramService } from '../telegram/telegram.service';
-import { CreateTransactionDto, VerifyTransactionDto } from './dto';
-import { TransactionStatus, TransactionType } from '@prisma/client';
+import { CreateTransactionDto } from './dto/transaction.dto';
 export declare class TransactionsService {
-    private prisma;
-    private emailService;
-    private telegramService;
-    constructor(prisma: PrismaService, emailService: EmailService, telegramService: TelegramService);
-    create(userId: string, createTransactionDto: CreateTransactionDto): Promise<{
-        transactionId: string;
-        message: string;
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    create(createTransactionDto: CreateTransactionDto & {
+        userId: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        description: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        status: import("@prisma/client").$Enums.TransactionStatus;
+        type: import("@prisma/client").$Enums.TransactionType;
     }>;
-    verifyTransaction(verifyTransactionDto: VerifyTransactionDto): Promise<{
-        message: string;
-        transactionId: string;
-    }>;
-    findAll(page?: number, limit?: number, status?: TransactionStatus, type?: TransactionType, userId?: string): Promise<{
-        data: ({
+    findAllByUserId(userId: string, params: {
+        page: number;
+        limit: number;
+        accountId?: string;
+        type?: string;
+    }): Promise<{
+        transactions: {
+            id: string;
+            createdAt: Date;
+            description: string;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            status: import("@prisma/client").$Enums.TransactionStatus;
+            type: import("@prisma/client").$Enums.TransactionType;
             fromAccount: {
-                user: {
-                    email: string;
-                    firstName: string;
-                    lastName: string;
-                    id: string;
-                };
-            } & {
-                isActive: boolean;
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 accountNumber: string;
-                balance: import("@prisma/client/runtime/library").Decimal;
-                currency: string;
-                userId: string;
             };
             toAccount: {
-                user: {
-                    email: string;
-                    firstName: string;
-                    lastName: string;
-                    id: string;
-                };
-            } & {
-                isActive: boolean;
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 accountNumber: string;
-                balance: import("@prisma/client/runtime/library").Decimal;
-                currency: string;
-                userId: string;
             };
-        } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            fromAccountId: string | null;
-            toAccountId: string | null;
-            fromUserId: string;
-            toUserId: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
-            fee: import("@prisma/client/runtime/library").Decimal;
-            status: import("@prisma/client").$Enums.TransactionStatus;
-            verificationCode: string | null;
-            isVerified: boolean;
-            verifiedAt: Date | null;
-        })[];
-        meta: {
-            total: number;
+        }[];
+        pagination: {
             page: number;
             limit: number;
-            totalPages: number;
+            total: number;
+            pages: number;
         };
     }>;
-    findOne(id: string, userId?: string): Promise<{
-        fromAccount: {
-            user: {
-                email: string;
-                firstName: string;
-                lastName: string;
-                id: string;
-            };
-        } & {
-            isActive: boolean;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            accountNumber: string;
-            balance: import("@prisma/client/runtime/library").Decimal;
-            currency: string;
-            userId: string;
-        };
-        toAccount: {
-            user: {
-                email: string;
-                firstName: string;
-                lastName: string;
-                id: string;
-            };
-        } & {
-            isActive: boolean;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            accountNumber: string;
-            balance: import("@prisma/client/runtime/library").Decimal;
-            currency: string;
-            userId: string;
-        };
-    } & {
-        type: import("@prisma/client").$Enums.TransactionType;
-        description: string | null;
+    findOneByUserAndId(userId: string, transactionId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        fromAccountId: string | null;
-        toAccountId: string | null;
-        fromUserId: string;
-        toUserId: string;
+        description: string;
         amount: import("@prisma/client/runtime/library").Decimal;
-        fee: import("@prisma/client/runtime/library").Decimal;
         status: import("@prisma/client").$Enums.TransactionStatus;
-        verificationCode: string | null;
-        isVerified: boolean;
-        verifiedAt: Date | null;
-    }>;
-    getUserTransactions(userId: string, page?: number, limit?: number): Promise<{
-        data: ({
-            fromAccount: {
-                isActive: boolean;
-                id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                accountNumber: string;
-                balance: import("@prisma/client/runtime/library").Decimal;
-                currency: string;
-                userId: string;
-            };
-            toAccount: {
-                isActive: boolean;
-                id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                accountNumber: string;
-                balance: import("@prisma/client/runtime/library").Decimal;
-                currency: string;
-                userId: string;
-            };
-            fromUser: {
-                email: string;
-                firstName: string;
-                lastName: string;
-                id: string;
-            };
-            toUser: {
-                email: string;
-                firstName: string;
-                lastName: string;
-                id: string;
-            };
-        } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
+        type: import("@prisma/client").$Enums.TransactionType;
+        fromAccount: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            fromAccountId: string | null;
-            toAccountId: string | null;
-            fromUserId: string;
-            toUserId: string;
-            amount: import("@prisma/client/runtime/library").Decimal;
-            fee: import("@prisma/client/runtime/library").Decimal;
-            status: import("@prisma/client").$Enums.TransactionStatus;
-            verificationCode: string | null;
-            isVerified: boolean;
-            verifiedAt: Date | null;
-        })[];
-        meta: {
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number;
+            accountNumber: string;
+            balance: import("@prisma/client/runtime/library").Decimal;
+        };
+        toAccount: {
+            id: string;
+            accountNumber: string;
+            balance: import("@prisma/client/runtime/library").Decimal;
+        };
+        fromUser: {
+            email: string;
+            firstName: string;
+            lastName: string;
+            id: string;
+        };
+        toUser: {
+            email: string;
+            firstName: string;
+            lastName: string;
+            id: string;
         };
     }>;
-    getTransactionStats(userId?: string): Promise<{
-        total: number;
-        completed: number;
-        pending: number;
-        failed: number;
-        totalAmount: number | import("@prisma/client/runtime/library").Decimal;
-    }>;
-    private generateVerificationCode;
 }

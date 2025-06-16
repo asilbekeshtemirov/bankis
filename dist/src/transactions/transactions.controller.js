@@ -14,112 +14,82 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
+const passport_1 = require("@nestjs/passport");
 const swagger_1 = require("@nestjs/swagger");
 const transactions_service_1 = require("./transactions.service");
-const dto_1 = require("./dto");
-const auth_guard_1 = require("../common/guards/auth.guard");
-const roles_guard_1 = require("../common/guards/roles.guard");
-const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
-const client_1 = require("@prisma/client");
+const transaction_dto_1 = require("./dto/transaction.dto");
+const find_transactions_dto_1 = require("./dto/find-transactions.dto");
 let TransactionsController = class TransactionsController {
     constructor(transactionsService) {
         this.transactionsService = transactionsService;
     }
-    create(user, createTransactionDto) {
-        return this.transactionsService.create(user.sub, createTransactionDto);
+    async create(dto, req) {
+        const transaction = await this.transactionsService.create({
+            ...dto,
+            userId: req.user.id,
+        });
+        return {
+            message: 'Transaction created successfully',
+            data: transaction,
+        };
     }
-    verifyTransaction(verifyTransactionDto) {
-        return this.transactionsService.verifyTransaction(verifyTransactionDto);
+    async findAll(req, query) {
+        const transactions = await this.transactionsService.findAllByUserId(req.user.id, {
+            page: parseInt(query.page || '1'),
+            limit: parseInt(query.limit || '10'),
+            accountId: query.accountId,
+            type: query.type,
+        });
+        return {
+            message: 'Transactions retrieved successfully',
+            data: transactions,
+        };
     }
-    findAll(page, limit, status, type, userId) {
-        return this.transactionsService.findAll(page, limit, status, type, userId);
-    }
-    getUserTransactions(user, page, limit) {
-        return this.transactionsService.getUserTransactions(user.sub, page, limit);
-    }
-    getTransactionStats(user) {
-        const userId = user.role === 'ADMIN' ? undefined : user.sub;
-        return this.transactionsService.getTransactionStats(userId);
-    }
-    findOne(user, id) {
-        const userId = user.role === 'ADMIN' ? undefined : user.sub;
-        return this.transactionsService.findOne(id, userId);
+    async findOne(id, req) {
+        const transaction = await this.transactionsService.findOneByUserAndId(req.user.id, id);
+        return {
+            message: 'Transaction retrieved successfully',
+            data: transaction,
+        };
     }
 };
 exports.TransactionsController = TransactionsController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new transaction' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Transaction created successfully' }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Body)()),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Transaction successfully created.' }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, dto_1.CreateTransactionDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [transaction_dto_1.CreateTransactionDto, Object]),
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Post)('verify'),
-    (0, swagger_1.ApiOperation)({ summary: 'Verify transaction with code' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Transaction verified successfully' }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.VerifyTransactionDto]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "verifyTransaction", null);
-__decorate([
     (0, common_1.Get)(),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN', 'MANAGER'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all transactions (Admin/Manager only)' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: client_1.TransactionStatus }),
-    (0, swagger_1.ApiQuery)({ name: 'type', required: false, enum: client_1.TransactionType }),
-    (0, swagger_1.ApiQuery)({ name: 'userId', required: false, type: String }),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('status')),
-    __param(3, (0, common_1.Query)('type')),
-    __param(4, (0, common_1.Query)('userId')),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user transactions' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Transactions retrieved successfully.' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, find_transactions_dto_1.FindTransactionsDto]),
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)('my-transactions'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get current user transactions' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Query)('page')),
-    __param(2, (0, common_1.Query)('limit')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, Number]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "getUserTransactions", null);
-__decorate([
-    (0, common_1.Get)('stats'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get transaction statistics' }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "getTransactionStats", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get transaction by ID' }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Transaction retrieved successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Transaction not found.' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findOne", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, swagger_1.ApiTags)('transactions'),
-    (0, common_1.Controller)({ path: 'transactions', version: '1' }),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Controller)('transactions'),
     __metadata("design:paramtypes", [transactions_service_1.TransactionsService])
 ], TransactionsController);
 //# sourceMappingURL=transactions.controller.js.map

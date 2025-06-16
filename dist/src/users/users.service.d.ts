@@ -5,24 +5,24 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         role: {
-            name: string;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             displayName: string;
+            description: string | null;
         };
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
         accounts: {
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -35,12 +35,12 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -48,24 +48,24 @@ export declare class UsersService {
     findAll(page?: number, limit?: number, search?: string, role?: string): Promise<{
         data: ({
             role: {
-                name: string;
-                description: string | null;
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
                 displayName: string;
+                description: string | null;
             };
             language: {
-                name: string;
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
                 code: string;
             };
             accounts: {
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -82,12 +82,12 @@ export declare class UsersService {
             password: string | null;
             firstName: string | null;
             lastName: string | null;
-            phone: string | null;
             roleId: string;
             languageId: string;
-            isActive: boolean;
             id: string;
             googleId: string | null;
+            phone: string | null;
+            isActive: boolean;
             telegramId: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -101,24 +101,24 @@ export declare class UsersService {
     }>;
     findOne(id: string): Promise<{
         role: {
-            name: string;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             displayName: string;
+            description: string | null;
         };
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
         accounts: {
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -128,8 +128,8 @@ export declare class UsersService {
         }[];
         transfersFrom: ({
             toAccount: {
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -142,22 +142,22 @@ export declare class UsersService {
                 password: string | null;
                 firstName: string | null;
                 lastName: string | null;
-                phone: string | null;
                 roleId: string;
                 languageId: string;
-                isActive: boolean;
                 id: string;
                 googleId: string | null;
+                phone: string | null;
+                isActive: boolean;
                 telegramId: string | null;
                 createdAt: Date;
                 updatedAt: Date;
             };
         } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -165,14 +165,15 @@ export declare class UsersService {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
+            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
         transfersTo: ({
             fromAccount: {
-                isActive: boolean;
                 id: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -185,22 +186,22 @@ export declare class UsersService {
                 password: string | null;
                 firstName: string | null;
                 lastName: string | null;
-                phone: string | null;
                 roleId: string;
                 languageId: string;
-                isActive: boolean;
                 id: string;
                 googleId: string | null;
+                phone: string | null;
+                isActive: boolean;
                 telegramId: string | null;
                 createdAt: Date;
                 updatedAt: Date;
             };
         } & {
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -208,6 +209,7 @@ export declare class UsersService {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
+            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
@@ -217,36 +219,36 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<{
         role: {
-            name: string;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             displayName: string;
+            description: string | null;
         };
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
         accounts: {
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -259,36 +261,36 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     updateProfile(userId: string, updateProfileDto: UpdateProfileDto): Promise<{
         role: {
-            name: string;
-            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             displayName: string;
+            description: string | null;
         };
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
         accounts: {
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -301,12 +303,12 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -316,12 +318,12 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -338,12 +340,12 @@ export declare class UsersService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
-        phone: string | null;
         roleId: string;
         languageId: string;
-        isActive: boolean;
         id: string;
         googleId: string | null;
+        phone: string | null;
+        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;

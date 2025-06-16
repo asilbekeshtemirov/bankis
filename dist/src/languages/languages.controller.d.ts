@@ -4,19 +4,19 @@ export declare class LanguagesController {
     private readonly languagesService;
     constructor(languagesService: LanguagesService);
     createLanguage(createLanguageDto: CreateLanguageDto): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     findAllLanguages(): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }[]>;
     findOneLanguage(id: string): Promise<{
@@ -32,36 +32,36 @@ export declare class LanguagesController {
             value: string;
         }[];
     } & {
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     updateLanguage(id: string, updateLanguageDto: UpdateLanguageDto): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     removeLanguage(id: string): Promise<{
-        name: string;
-        isActive: boolean;
         id: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
         code: string;
     }>;
     createTranslation(createTranslationDto: CreateTranslationDto): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -74,11 +74,11 @@ export declare class LanguagesController {
     }>;
     findAllTranslations(languageId?: string): Promise<({
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -91,11 +91,11 @@ export declare class LanguagesController {
     })[]>;
     findOneTranslation(id: string): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
@@ -108,11 +108,11 @@ export declare class LanguagesController {
     }>;
     updateTranslation(id: string, updateTranslationDto: UpdateTranslationDto): Promise<{
         language: {
-            name: string;
-            isActive: boolean;
             id: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             code: string;
         };
     } & {
