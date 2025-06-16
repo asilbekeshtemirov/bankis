@@ -6,8 +6,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/bankis
+      -NODE_ENV=production
+      - DATABASE_URL="postgresql://postgres:root@localhost:5432/exam"
       - JWT_SECRET=supersecret_bankis_jwt_key_2024
       - JWT_REFRESH_SECRET=supersecret_bankis_refresh_key_2024
     depends_on:
