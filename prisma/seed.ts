@@ -1,0 +1,147 @@
+import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // Create languages
+  const uzLang = await prisma.language.upsert({
+    where: { code: 'uz' },
+    update: {},
+    create: {
+      code: 'uz',
+      name: 'O\'zbekcha',
+      isActive: true,
+    },
+  });
+
+  const enLang = await prisma.language.upsert({
+    where: { code: 'en' },
+    update: {},
+    create: {
+      code: 'en',
+      name: 'English',
+      isActive: true,
+    },
+  });
+
+  const ruLang = await prisma.language.upsert({
+    where: { code: 'ru' },
+    update: {},
+    create: {
+      code: 'ru',
+      name: 'Русский',
+      isActive: true,
+    },
+  });
+
+  // Create roles
+  const adminRole = await prisma.role.upsert({
+    where: { name: 'ADMIN' },
+    update: {},
+    create: {
+      name: 'ADMIN',
+      displayName: 'Administrator',
+      description: 'Full access to system',
+    },
+  });
+
+  const userRole = await prisma.role.upsert({
+    where: { name: 'USER' },
+    update: {},
+    create: {
+      name: 'USER',
+      displayName: 'User',
+      description: 'Regular user access',
+    },
+  });
+
+  const managerRole = await prisma.role.upsert({
+    where: { name: 'MANAGER' },
+    update: {},
+    create: {
+      name: 'MANAGER',
+      displayName: 'Manager',
+      description: 'Manager access',
+    },
+  });
+
+  // Create admin user
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@bankis.uz' },
+    update: {},
+    create: {
+      email: 'admin@bankis.uz',
+      password: hashedPassword,
+      firstName: 'Admin',
+      lastName: 'User',
+      roleId: adminRole.id,
+      languageId: uzLang.id,
+    },
+  });
+
+  // Create admin account with 100 million balance
+  await prisma.account.upsert({
+    where: { accountNumber: '8600000000000001' },
+    update: {},
+    create: {
+      accountNumber: '8600000000000001',
+      balance: 100000000, // 100 million
+      currency: 'UZS',
+      userId: adminUser.id,
+    },
+  });
+
+  // Create translations
+  const translations = [
+    // Uzbek translations
+    { languageId: uzLang.id, key: 'welcome', value: 'Xush kelibsiz' },
+    { languageId: uzLang.id, key: 'login', value: 'Kirish' },
+    { languageId: uzLang.id, key: 'register', value: 'Ro\'yxatdan o\'tish' },
+    { languageId: uzLang.id, key: 'balance', value: 'Balans' },
+    { languageId: uzLang.id, key: 'transfer', value: 'Pul o\'tkazish' },
+    { languageId: uzLang.id, key: 'history', value: 'Tarix' },
+    
+    // English translations
+    { languageId: enLang.id, key: 'welcome', value: 'Welcome' },
+    { languageId: enLang.id, key: 'login', value: 'Login' },
+    { languageId: enLang.id, key: 'register', value: 'Register' },
+    { languageId: enLang.id, key: 'balance', value: 'Balance' },
+    { languageId: enLang.id, key: 'transfer', value: 'Transfer' },
+    { languageId: enLang.id, key: 'history', value: 'History' },
+    
+    // Russian translations
+    { languageId: ruLang.id, key: 'welcome', value: 'Добро пожаловать' },
+    { languageId: ruLang.id, key: 'login', value: 'Войти' },
+    { languageId: ruLang.id, key: 'register', value: 'Регистрация' },
+    { languageId: ruLang.id, key: 'balance', value: 'Баланс' },
+    { languageId: ruLang.id, key: 'transfer', value: 'Перевод' },
+    { languageId: ruLang.id, key: 'history', value: 'История' },
+  ];
+
+  for (const translation of translations) {
+    await prisma.translation.upsert({
+      where: {
+        languageId_key: {
+          languageId: translation.languageId,
+          key: translation.key,
+        },
+      },
+      update: {},
+      create: translation,
+    });
+  }
+
+  console.log('Database seeded successfully!');
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
