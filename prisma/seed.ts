@@ -4,7 +4,6 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create languages
   const uzLang = await prisma.language.upsert({
     where: { code: 'uz' },
     update: {},
@@ -35,7 +34,6 @@ async function main() {
     },
   });
 
-  // Create roles
   const adminRole = await prisma.role.upsert({
     where: { name: 'ADMIN' },
     update: {},
@@ -66,7 +64,6 @@ async function main() {
     },
   });
 
-  // Create admin user
   const hashedPassword = await bcrypt.hash('admin123', 10);
   
   const adminUser = await prisma.user.upsert({
@@ -82,21 +79,19 @@ async function main() {
     },
   });
 
-  // Create admin account with 100 million balance
   await prisma.account.upsert({
     where: { accountNumber: '8600000000000001' },
     update: {},
     create: {
       accountNumber: '8600000000000001',
-      balance: 100000000, // 100 million
+      balance: 100000000, 
       currency: 'UZS',
       userId: adminUser.id,
     },
   });
 
-  // Create translations
   const translations = [
-    // Uzbek translations
+
     { languageId: uzLang.id, key: 'welcome', value: 'Xush kelibsiz' },
     { languageId: uzLang.id, key: 'login', value: 'Kirish' },
     { languageId: uzLang.id, key: 'register', value: 'Ro\'yxatdan o\'tish' },
@@ -104,7 +99,7 @@ async function main() {
     { languageId: uzLang.id, key: 'transfer', value: 'Pul o\'tkazish' },
     { languageId: uzLang.id, key: 'history', value: 'Tarix' },
     
-    // English translations
+
     { languageId: enLang.id, key: 'welcome', value: 'Welcome' },
     { languageId: enLang.id, key: 'login', value: 'Login' },
     { languageId: enLang.id, key: 'register', value: 'Register' },
@@ -112,7 +107,7 @@ async function main() {
     { languageId: enLang.id, key: 'transfer', value: 'Transfer' },
     { languageId: enLang.id, key: 'history', value: 'History' },
     
-    // Russian translations
+
     { languageId: ruLang.id, key: 'welcome', value: 'Добро пожаловать' },
     { languageId: ruLang.id, key: 'login', value: 'Войти' },
     { languageId: ruLang.id, key: 'register', value: 'Регистрация' },

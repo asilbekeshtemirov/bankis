@@ -1,266 +1,298 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { Telegraf, Context } from 'telegraf';
+import dayjs from 'dayjs';
+import 'dayjs/locale/uz';
 
-interface BotContext extends Context {
+dayjs.locale('uz');
+
+interface BotCtx extends Context {
   session?: any;
 }
 
 @Injectable()
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
-  private bot: Telegraf<BotContext>;
+  private bot: Telegraf<BotCtx>;
+  private readonly PAGE_SIZE = 5;
+  private readonly sessionStore = new Map<string, any>();
 
-  constructor(private prisma: PrismaService) {
-    if (process.env.TELEGRAM_BOT_TOKEN) {
-      this.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-      this.setupBot();
-      this.bot.launch();
-      this.logger.log('Telegram bot started');
-    } else {
-      this.logger.warn('Telegram bot token not provided');
-    }
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => TransactionsService))
+    private readonly transactionsService: TransactionsService,
+  ) {
+    this.bot = new Telegraf<BotCtx>(process.env.TELEGRAM_BOT_TOKEN);
+    this.setupBot();
+    this.bot.launch();
+    this.logger.log('✅ Telegram bot ishga tushdi');
   }
 
   private setupBot() {
-    // Start command
-    this.bot.start((ctx) => {
-      ctx.reply(
-        'Welcome to BankIS Bot! 🏦\n\n' +
-        'Available commands:\n' +
-        '/link - Link your account\n' +
-        '/balance - Check account balance\n' +
-        '/history - View transaction history\n' +
-        '/help - Show help'
-      );
-    });
+    this.bot.start(async (ctx) => {
+      const tgId = ctx.from.id.toString();
+      const user = await this.prisma.user.findUnique({ where: { telegramId: tgId } });
 
-    // Help command
-    this.bot.help((ctx) => {
-      ctx.reply(
-        'BankIS Bot Commands:\n\n' +
-        '/start - Start the bot\n' +
-        '/link <email> - Link your account with email\n' +
-        '/balance - Check your account balances\n' +
-        '/history - View recent transactions\n' +
-        '/unlink - Unlink your account\n' +
-        '/help - Show this help message'
-      );
-    });
+      if (user) {
+        const name = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        await ctx.replyWithHTML(`
+🏦 <b>BankIS Bot – Xush kelibsiz, ${name || 'Foydalanuvchi'}!</b>
 
-    // Link account command
-    this.bot.command('link', async (ctx) => {
-      const args = ctx.message.text.split(' ');
-      if (args.length < 2) {
-        ctx.reply('Please provide your email: /link your-email@example.com');
-        return;
-      }
+🔹 Hisoblarni boshqarish  
+🔹 Balansni tekshirish  
+🔹 Tranzaksiyalar tarixini ko‘rish  
 
-      const email = args[1];
-      const telegramId = ctx.from.id.toString();
 
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { email },
+<i>Telegram ichida tez, xavfsiz va qulay xizmat!</i>
+
+⬇ <b>Boshlash uchun buyruqlardan birini tanlang:</b>
+💼 /balance – Balansni ko‘rish  
+📜 /mytransactions – Tranzaksiyalar  
+💱 /currency – Valyuta kurslari  
+❓ /help – Qo‘llanma`);
+      } else {
+        await ctx.reply('🛡 Ro‘yxatdan o‘tish uchun telefon raqamingizni yuboring.', {
+          reply_markup: {
+            keyboard: [[{ text: '📞 Telefon raqam', request_contact: true }]],
+            one_time_keyboard: true,
+            resize_keyboard: true,
+          },
         });
-
-        if (!user) {
-          ctx.reply('❌ User not found with this email address.');
-          return;
-        }
-
-        if (user.telegramId && user.telegramId !== telegramId) {
-          ctx.reply('❌ This email is already linked to another Telegram account.');
-          return;
-        }
-
-        await this.prisma.user.update({
-          where: { email },
-          data: { telegramId },
-        });
-
-        ctx.reply('✅ Account linked successfully! You will now receive notifications.');
-      } catch (error) {
-        this.logger.error('Error linking account:', error);
-        ctx.reply('❌ Failed to link account. Please try again.');
       }
     });
 
-    // Check balance command
+    this.bot.on('contact', async (ctx) => {
+      const tgId = ctx.from.id.toString();
+      let phone = ctx.message.contact?.phone_number;
+      if (!phone) return ctx.reply('❗ Telefon raqam topilmadi.');
+      phone = phone.replace(/^\+?998/, '');
+
+      const user = await this.prisma.user.findFirst({
+        where: { phone: { endsWith: phone } },
+      });
+
+      if (!user) return ctx.reply('❌ Ushbu raqamga mos foydalanuvchi topilmadi.');
+
+      await this.prisma.user.update({ where: { id: user.id }, data: { telegramId: tgId } });
+      const name = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+      await ctx.reply(`✅ Salom, ${name}! Telegram hisobingiz bog‘landi.`);
+      await ctx.reply(`💰 /mytransactions — Tranzaksiyalar\n💼 /balance — Hisob balansingizni ko‘rish`);
+    });
+
     this.bot.command('balance', async (ctx) => {
-      const telegramId = ctx.from.id.toString();
+      const tgId = ctx.from.id.toString();
+      const user = await this.prisma.user.findUnique({
+        where: { telegramId: tgId },
+        include: { accounts: true },
+      });
 
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { telegramId },
-          include: {
-            accounts: {
-              where: { isActive: true },
-            },
-          },
-        });
+      if (!user) return ctx.reply('❗ Avval /start orqali ro‘yxatdan o‘ting.');
+      if (!user.accounts.length) return ctx.reply('💼 Hisob mavjud emas.');
 
-        if (!user) {
-          ctx.reply('❌ Account not linked. Use /link <email> to link your account.');
-          return;
-        }
-
-        if (user.accounts.length === 0) {
-          ctx.reply('❌ No accounts found.');
-          return;
-        }
-
-        let message = '💰 Your Account Balances:\n\n';
-        user.accounts.forEach((account, index) => {
-          message += `${index + 1}. Account: ${account.accountNumber}\n`;
-          message += `   Balance: ${Number(account.balance).toLocaleString()} ${account.currency}\n\n`;
-        });
-
-        ctx.reply(message);
-      } catch (error) {
-        this.logger.error('Error getting balance:', error);
-        ctx.reply('❌ Failed to get balance. Please try again.');
+      let msg = `🏦 Hisoblaringizdagi balans:\n`;
+      for (const acc of user.accounts) {
+        msg += `🔹 ${acc.accountNumber}\n💵 ${acc.balance} ${acc.currency}\n\n`;
       }
+      await ctx.reply(msg.trim());
     });
 
-    // Transaction history command
-    this.bot.command('history', async (ctx) => {
-      const telegramId = ctx.from.id.toString();
+    this.bot.command('currency', async (ctx) => {
+      const tgId = ctx.from.id.toString();
+      const user = await this.prisma.user.findUnique({ where: { telegramId: tgId } });
+      if (!user) return ctx.reply('❗ Avval /start orqali ro‘yxatdan o‘ting.');
 
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { telegramId },
-        });
-
-        if (!user) {
-          ctx.reply('❌ Account not linked. Use /link <email> to link your account.');
-          return;
-        }
-
-        const transactions = await this.prisma.transaction.findMany({
-          where: {
-            OR: [
-              { fromUserId: user.id },
-              { toUserId: user.id },
-            ],
-          },
-          include: {
-            fromAccount: true,
-            toAccount: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        });
-
-        if (transactions.length === 0) {
-          ctx.reply('📝 No transactions found.');
-          return;
-        }
-
-        let message = '📋 Recent Transactions:\n\n';
-        transactions.forEach((tx, index) => {
-          const isIncoming = tx.toUserId === user.id;
-          const direction = isIncoming ? '⬇️ Received' : '⬆️ Sent';
-          const account = isIncoming ? tx.fromAccount.accountNumber : tx.toAccount.accountNumber;
-          
-          message += `${index + 1}. ${direction}\n`;
-          message += `   Amount: ${Number(tx.amount).toLocaleString()} UZS\n`;
-          message += `   ${isIncoming ? 'From' : 'To'}: ${account}\n`;
-          message += `   Status: ${tx.status}\n`;
-          message += `   Date: ${tx.createdAt.toLocaleDateString()}\n\n`;
-        });
-
-        ctx.reply(message);
-      } catch (error) {
-        this.logger.error('Error getting history:', error);
-        ctx.reply('❌ Failed to get transaction history. Please try again.');
+      const rates = await this.transactionsService.getExchangeRates();
+      if (!rates || rates.length === 0) {
+        return ctx.reply('❗ Valyuta kurslari mavjud emas.');
       }
+
+      let msg = '<b>💱 Bugungi valyuta kurslari (UZS):</b>\n\n';
+      for (const rate of rates) {
+        msg += `🔹 1 ${rate.currency} = ${rate.rate} UZS\n`;
+      }
+      await ctx.replyWithHTML(msg.trim());
     });
 
-    // Unlink command
-    this.bot.command('unlink', async (ctx) => {
-      const telegramId = ctx.from.id.toString();
+    this.bot.command('help', async (ctx) => {
+      await ctx.replyWithHTML(`
+❓ <b>Yordam</b>
 
-      try {
-        const user = await this.prisma.user.findUnique({
-          where: { telegramId },
-        });
-
-        if (!user) {
-          ctx.reply('❌ No linked account found.');
-          return;
-        }
-
-        await this.prisma.user.update({
-          where: { telegramId },
-          data: { telegramId: null },
-        });
-
-        ctx.reply('✅ Account unlinked successfully.');
-      } catch (error) {
-        this.logger.error('Error unlinking account:', error);
-        ctx.reply('❌ Failed to unlink account. Please try again.');
-      }
+Quyidagi komandalar orqali botdan foydalanishingiz mumkin:
+/start - Botni ishga tushurish yoki autentifikatsiya  
+/balance - Hisobingizdagi mablag‘ni ko‘rish  
+/mytransactions - Oxirgi tranzaksiyalar  
+/currency - Valyuta kurslari  
+/help - Qo‘llanma`);
     });
 
-    // Error handling
+    this.bot.command('mytransactions', async (ctx) => {
+      const tgId = ctx.from.id.toString();
+      const user = await this.prisma.user.findUnique({ where: { telegramId: tgId } });
+      if (!user) return ctx.reply('❗ Avval /start orqali ro‘yxatdan o‘ting.');
+
+      this.sessionStore.set(tgId, { filter: null, page: 1, userId: user.id });
+
+      return ctx.reply('🗓 Qaysi davr uchun tranzaksiyalarni ko‘rmoqchisiz?', {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🕖 So‘nggi 7 kun', callback_data: 'filter_7' }],
+            [{ text: '📆 So‘nggi 30 kun', callback_data: 'filter_30' }],
+            [{ text: '🗓 So‘nggi 90 kun', callback_data: 'filter_90' }],
+            [{ text: '📜 Barchasi', callback_data: 'filter_all' }],
+          ],
+        },
+      });
+    });
+
+    this.bot.on('callback_query', async (ctx) => {
+      const tgId = ctx.from.id.toString();
+      const session = this.sessionStore.get(tgId);
+      if (!session) return ctx.answerCbQuery('⛔ Oldin /mytransactions buyrug‘ini bering');
+
+      if ('data' in ctx.callbackQuery) {
+        const callback = ctx.callbackQuery.data;
+
+      if (callback.startsWith('filter_')) {
+        const days = callback === 'filter_all' ? null : parseInt(callback.split('_')[1], 10);
+        this.sessionStore.set(tgId, { ...session, filter: days, page: 1 });
+        return this.showTransactions(ctx, tgId);
+      }
+
+      if (callback === 'next_page' || callback === 'prev_page') {
+        const pageChange = callback === 'next_page' ? 1 : -1;
+        session.page = Math.max(1, session.page + pageChange);
+        this.sessionStore.set(tgId, session);
+        return this.showTransactions(ctx, tgId);
+      }
+    }}
+  );
+
     this.bot.catch((err, ctx) => {
-      this.logger.error('Bot error:', err);
-      ctx.reply('❌ An error occurred. Please try again.');
+      this.logger.error('⚠️ Botda xatolik:', err);
+      ctx.reply('❌ Botda xatolik yuz berdi.');
     });
   }
 
+  private async showTransactions(ctx: BotCtx, tgId: string) {
+    const session = this.sessionStore.get(tgId);
+    const { userId, filter, page, lastMessageIds = [] } = session;
+  
+    
+    for (const msgId of lastMessageIds) {
+      try {
+        await ctx.deleteMessage(msgId);
+      } catch (err) {
+      }
+    }
+  
+    const filterWhere: any = {};
+    if (filter) {
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - filter);
+      filterWhere.createdAt = { gte: fromDate };
+    }
+  
+    const [result, total] = await Promise.all([
+      this.transactionsService.getUserTransactions(userId, page, this.PAGE_SIZE),
+      this.transactionsService.countUserTransactions(userId, filterWhere),
+    ]);
+  
+    const transactions = result.data;
+    const totalPages = result.meta.totalPages;
+  
+    if (!transactions || transactions.length === 0) {
+      const message = await ctx.reply('💬 Tranzaksiya topilmadi.');
+      session.lastMessageIds = [message.message_id];
+      return;
+    }
+  
+    const emojiMap = {
+      COMPLETED: '✅',
+      PENDING: '⏳',
+      FAILED: '❌',
+      RECEIVED: '💰',
+    };
+  
+    const messageIds: number[] = [];
+  
+    for (const tx of transactions) {
+      const emoji = emojiMap[tx.status] || '🔁';
+      const formattedAmount = new Intl.NumberFormat('uz-UZ', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Number(tx.amount));
+  
+      const createdAt = new Date(tx.createdAt).toLocaleString('uz-UZ');
+  
+      const msg = `
+  ${emoji} <b>${formattedAmount} ${tx.fromAccount.currency}</b>
+  📌 <b>Status:</b> ${tx.status}
+  🟢 <b>From:</b> ${tx.fromAccount.accountNumber}
+  🔵 <b>To:</b> ${tx.toAccount.accountNumber}
+  📅 <b>Sana:</b> ${createdAt}
+  ━━━━━━━━━━━━━━━━━━━`.trim();
+  
+      const m = await ctx.replyWithHTML(msg);
+      messageIds.push(m.message_id);
+    }
+  
+    const buttons = [];
+    if (page > 1) buttons.push({ text: '⬅️ Oldingi', callback_data: 'prev_page' });
+    if (page < totalPages) buttons.push({ text: '➡️ Keyingi', callback_data: 'next_page' });
+  
+    const metaMsg = await ctx.reply(`📄 Sahifa ${page}/${totalPages}`, {
+      reply_markup: { inline_keyboard: [buttons] },
+    });
+  
+    messageIds.push(metaMsg.message_id);
+    session.lastMessageIds = messageIds;
+  }
+  
   async sendTransactionNotification(
     telegramId: string,
-    type: 'PENDING' | 'COMPLETED' | 'FAILED' | 'RECEIVED',
+    type: 'COMPLETED' | 'RECEIVED' | 'PENDING' | 'FAILED',
     amount: number,
     accountNumber: string,
   ) {
-    if (!this.bot || !telegramId) return;
+    if (!telegramId) return;
+
+    const emojiMap = {
+      COMPLETED: '✅',
+      RECEIVED: '💰',
+      PENDING: '⏳',
+      FAILED: '❌',
+    };
+
+    const emoji = emojiMap[type] || '';
+    const text =
+      type === 'COMPLETED'
+        ? `${emoji} Siz ${amount} UZS yubordingiz → ${accountNumber}`
+        : type === 'RECEIVED'
+          ? `${emoji} Sizga ${amount} UZS keldi 💵 from ${accountNumber}`
+          : `${emoji} Tranzaksiya: ${amount} UZS → ${accountNumber}`;
 
     try {
-      let message = '';
-      let emoji = '';
-
-      switch (type) {
-        case 'PENDING':
-          emoji = '⏳';
-          message = `${emoji} Transaction Pending\n\nAmount: ${amount.toLocaleString()} UZS\nTo: ${accountNumber}\n\nPlease verify with the code sent to your email.`;
-          break;
-        case 'COMPLETED':
-          emoji = '✅';
-          message = `${emoji} Transaction Completed\n\nAmount: ${amount.toLocaleString()} UZS\nTo: ${accountNumber}\n\nTransaction was successful!`;
-          break;
-        case 'FAILED':
-          emoji = '❌';
-          message = `${emoji} Transaction Failed\n\nAmount: ${amount.toLocaleString()} UZS\nTo: ${accountNumber}\n\nPlease try again or contact support.`;
-          break;
-        case 'RECEIVED':
-          emoji = '💰';
-          message = `${emoji} Money Received\n\nAmount: ${amount.toLocaleString()} UZS\nFrom: ${accountNumber}\n\nYour account has been credited!`;
-          break;
-      }
-
-      await this.bot.telegram.sendMessage(telegramId, message);
-    } catch (error) {
-      this.logger.error('Error sending Telegram notification:', error);
+      await this.bot.telegram.sendMessage(telegramId, text);
+    } catch (err) {
+      this.logger.error('Xabar yuborilmadi:', err);
     }
   }
 
-  async sendMessage(telegramId: string, message: string) {
-    if (!this.bot || !telegramId) return;
+  async sendDirectMessage(telegramId: string, message: string) {
+    if (!telegramId || !message) {
+      this.logger.warn('Xabar uchun telegramId yoki message yo‘q');
+      return { success: false, message: 'telegramId va message talab qilinadi' };
+    }
 
     try {
       await this.bot.telegram.sendMessage(telegramId, message);
-    } catch (error) {
-      this.logger.error('Error sending Telegram message:', error);
-    }
-  }
-
-  onModuleDestroy() {
-    if (this.bot) {
-      this.bot.stop();
-      this.logger.log('Telegram bot stopped');
+      this.logger.log(`Xabar yuborildi: ${telegramId} => ${message}`);
+      return { success: true, message: 'Xabar yuborildi' };
+    } catch (err) {
+      this.logger.error('Xabar yuborishda xatolik:', err);
+      return { success: false, message: 'Xabar yuborilmadi', error: err.message };
     }
   }
 }

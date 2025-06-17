@@ -17,7 +17,7 @@ export class TelegramController {
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Send message via Telegram bot (Admin only)' })
   async sendMessage(@Body() body: { telegramId: string; message: string }) {
-    await this.telegramService.sendMessage(body.telegramId, body.message);
+    await this.telegramService.sendDirectMessage(body.telegramId, body.message);
     return { message: 'Message sent successfully' };
   }
 }

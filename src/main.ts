@@ -8,16 +8,15 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global prefix
   app.setGlobalPrefix('api');
 
-  // Versioning
+
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
 
-  // CORS
+
   app.enableCors({
     origin: [process.env.FRONTEND_URL || 'http://localhost:8080'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -25,7 +24,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -34,13 +32,10 @@ async function bootstrap() {
     })
   );
 
-  // Global filters
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // Global interceptors
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  // Swagger setup
   if (process.env.NODE_ENV === 'development') {
     const config = new DocumentBuilder()
       .setTitle('BankIS API')

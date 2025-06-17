@@ -24,7 +24,7 @@ let TelegramController = class TelegramController {
         this.telegramService = telegramService;
     }
     async sendMessage(body) {
-        await this.telegramService.sendMessage(body.telegramId, body.message);
+        await this.telegramService.sendDirectMessage(body.telegramId, body.message);
         return { message: 'Message sent successfully' };
     }
 };

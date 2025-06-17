@@ -27,7 +27,7 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   async uploadFile(
     @UploadedFile(
-      new FileSizeValidationPipe(5 * 1024 * 1024), // 5MB
+      new FileSizeValidationPipe(5 * 1024 * 1024),
       new FileTypeValidationPipe(['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'application/pdf'])
     )
     file: Express.Multer.File,
@@ -53,7 +53,7 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   async uploadMultipleFiles(
     @UploadedFiles(
-      new FileSizeValidationPipe(5 * 1024 * 1024), // 5MB per file
+      new FileSizeValidationPipe(5 * 1024 * 1024), 
       new FileTypeValidationPipe(['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'application/pdf'])
     )
     files: Express.Multer.File[],

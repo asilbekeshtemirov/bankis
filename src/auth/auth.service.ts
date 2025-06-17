@@ -25,10 +25,9 @@ export class AuthService {
       firstName,
       lastName,
       phone,
-      language = 'en', // default language code
+      language = 'en', 
     } = registerDto;
 
-    // check if user already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -40,7 +39,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const defaultRole = await this.prisma.role.findFirst({
-      where: { name: 'USER' }, // or whatever your default role is
+      where: { name: 'USER' }, 
     });
 
     if (!defaultRole) {
@@ -58,7 +57,7 @@ export class AuthService {
           connect: { id: defaultRole.id },
         },
         language: {
-          connect: { code: language }, // << fix here!
+          connect: { code: language }, 
         },
       },
       select: {

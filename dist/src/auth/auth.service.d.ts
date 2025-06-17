@@ -11,19 +11,19 @@ export declare class AuthService {
         access_token: string;
         user: {
             language: {
-                id: string;
+                name: string;
                 isActive: boolean;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
                 code: string;
             };
             email: string;
             firstName: string;
             lastName: string;
-            id: string;
             phone: string;
             isActive: boolean;
+            id: string;
             createdAt: Date;
         };
     }>;
@@ -34,12 +34,12 @@ export declare class AuthService {
             password: string | null;
             firstName: string | null;
             lastName: string | null;
+            phone: string | null;
             roleId: string;
             languageId: string;
+            isActive: boolean;
             id: string;
             googleId: string | null;
-            phone: string | null;
-            isActive: boolean;
             telegramId: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -52,12 +52,12 @@ export declare class AuthService {
             password: string | null;
             firstName: string | null;
             lastName: string | null;
+            phone: string | null;
             roleId: string;
             languageId: string;
+            isActive: boolean;
             id: string;
             googleId: string | null;
-            phone: string | null;
-            isActive: boolean;
             telegramId: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -68,12 +68,12 @@ export declare class AuthService {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
+        phone: string | null;
         roleId: string;
         languageId: string;
+        isActive: boolean;
         id: string;
         googleId: string | null;
-        phone: string | null;
-        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;

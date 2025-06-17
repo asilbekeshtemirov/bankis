@@ -11,8 +11,8 @@ export declare class AccountsController {
             id: string;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -33,8 +33,8 @@ export declare class AccountsController {
                 transactionsTo: number;
             };
         } & {
-            id: string;
             isActive: boolean;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -55,8 +55,8 @@ export declare class AccountsController {
             transactionsTo: number;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -78,8 +78,8 @@ export declare class AccountsController {
         };
         transactionsFrom: ({
             toAccount: {
-                id: string;
                 isActive: boolean;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -94,11 +94,11 @@ export declare class AccountsController {
                 id: string;
             };
         } & {
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -106,15 +106,14 @@ export declare class AccountsController {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
-            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
         transactionsTo: ({
             fromAccount: {
-                id: string;
                 isActive: boolean;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -129,11 +128,11 @@ export declare class AccountsController {
                 id: string;
             };
         } & {
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -141,14 +140,13 @@ export declare class AccountsController {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
-            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -164,8 +162,8 @@ export declare class AccountsController {
             id: string;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -174,8 +172,8 @@ export declare class AccountsController {
         userId: string;
     }>;
     remove(user: any, id: string): Promise<{
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;

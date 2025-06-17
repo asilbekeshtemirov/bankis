@@ -26,9 +26,15 @@ let AuthGuard = class AuthGuard {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: process.env.JWT_SECRET,
             });
-            request['user'] = payload;
+            request['user'] = {
+                id: payload.sub,
+                email: payload.email,
+                ...payload,
+            };
+            console.log('JWT Payload:', payload);
         }
-        catch {
+        catch (err) {
+            console.error(' JWT verify xatolik:', err);
             throw new common_1.UnauthorizedException('Invalid token');
         }
         return true;

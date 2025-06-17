@@ -10,13 +10,19 @@ exports.TelegramModule = void 0;
 const common_1 = require("@nestjs/common");
 const telegram_service_1 = require("./telegram.service");
 const telegram_controller_1 = require("./telegram.controller");
+const prisma_module_1 = require("../prisma/prisma.module");
 const auth_module_1 = require("../auth/auth.module");
+const transactions_module_1 = require("../transactions/transactions.module");
 let TelegramModule = class TelegramModule {
 };
 exports.TelegramModule = TelegramModule;
 exports.TelegramModule = TelegramModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [
+            auth_module_1.AuthModule,
+            prisma_module_1.PrismaModule,
+            (0, common_1.forwardRef)(() => transactions_module_1.TransactionsModule),
+        ],
         controllers: [telegram_controller_1.TelegramController],
         providers: [telegram_service_1.TelegramService],
         exports: [telegram_service_1.TelegramService],

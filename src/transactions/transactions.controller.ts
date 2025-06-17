@@ -1,68 +1,121 @@
 import {
   Controller,
-  Get,
   Post,
+  Get,
   Body,
   Param,
-  UseGuards,
-  Req,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/transaction.dto';
-import { FindTransactionsDto } from './dto/find-transactions.dto';
+import { CreateTransactionDto } from './dto';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
-@ApiTags('transactions')
+@ApiTags('Transactions')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new transaction' })
-  @ApiResponse({ status: 201, description: 'Transaction successfully created.' })
-  async create(@Body() dto: CreateTransactionDto, @Req() req: any) {
-    const transaction = await this.transactionsService.create({
-      ...dto,
-      userId: req.user.id,
-    });
-
-    return {
-      message: 'Transaction created successfully',
-      data: transaction,
-    };
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Create a transaction (no email verification)' })
+  @ApiResponse({
+    status: 201,
+    description: 'Transaction created successfully',
+    schema: {
+      example: {
+        transactionId: 'uuid',
+        message: 'Transaction completed successfully',
+      },
+    },
+  })
+  create(
+    @Body() dto: CreateTransactionDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.transactionsService.create(user.id, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get user transactions' })
-  @ApiResponse({ status: 200, description: 'Transactions retrieved successfully.' })
-  async findAll(@Req() req: any, @Query() query: FindTransactionsDto) {
-    const transactions = await this.transactionsService.findAllByUserId(req.user.id, {
-      page: parseInt(query.page || '1'),
-      limit: parseInt(query.limit || '10'),
-      accountId: query.accountId,
-      type: query.type,
-    });
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get all transactions (with filters)' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'status', required: false, example: 'COMPLETED' })
+  @ApiQuery({ name: 'type', required: false, example: 'TRANSFER' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of transactions',
+    schema: {
+      example: {
+        data: [],
+        meta: {
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+        },
+      },
+    },
+  })
+  findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('status') status: string,
+    @Query('type') type: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.transactionsService.findAll(page, limit, status, type, user.id);
+  }
 
-    return {
-      message: 'Transactions retrieved successfully',
-      data: transactions,
-    };
+  @Get('stats')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get transaction statistics (for authenticated user)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction statistics',
+    schema: {
+      example: {
+        total: 5,
+        completed: 4,
+        pending: 1,
+        failed: 0,
+        totalAmount: 123000,
+      },
+    },
+  })
+  getStats(@CurrentUser() user: any) {
+    return this.transactionsService.getTransactionStats(user.id);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get transaction by ID' })
-  @ApiResponse({ status: 200, description: 'Transaction retrieved successfully.' })
-  @ApiResponse({ status: 404, description: 'Transaction not found.' })
-  async findOne(@Param('id') id: string, @Req() req: any) {
-    const transaction = await this.transactionsService.findOneByUserAndId(req.user.id, id);
-    return {
-      message: 'Transaction retrieved successfully',
-      data: transaction,
-    };
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get one transaction by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction details',
+    schema: {
+      example: {
+        id: 'uuid',
+        amount: 50000,
+        status: 'COMPLETED',
+        type: 'TRANSFER',
+        fromAccount: { accountNumber: '8600...' },
+        toAccount: { accountNumber: '8600...' },
+        createdAt: '2025-06-16T00:00:00Z',
+      },
+    },
+  })
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.transactionsService.findOne(id, user.id);
   }
 }

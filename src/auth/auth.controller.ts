@@ -44,7 +44,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Google OAuth login' })
   async googleAuth() {
-    // Google login initiates here
+    
   }
 
   @Get('google/callback')

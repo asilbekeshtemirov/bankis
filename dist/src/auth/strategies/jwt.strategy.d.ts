@@ -11,12 +11,12 @@ export declare class JwtStrategy extends JwtStrategy_base {
         password: string | null;
         firstName: string | null;
         lastName: string | null;
+        phone: string | null;
         roleId: string;
         languageId: string;
+        isActive: boolean;
         id: string;
         googleId: string | null;
-        phone: string | null;
-        isActive: boolean;
         telegramId: string | null;
         createdAt: Date;
         updatedAt: Date;

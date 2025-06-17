@@ -1,11 +1,24 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { TransactionsService } from '../transactions/transactions.service';
+import 'dayjs/locale/uz';
 export declare class TelegramService {
-    private prisma;
+    private readonly prisma;
+    private readonly transactionsService;
     private readonly logger;
     private bot;
-    constructor(prisma: PrismaService);
+    private readonly PAGE_SIZE;
+    private readonly sessionStore;
+    constructor(prisma: PrismaService, transactionsService: TransactionsService);
     private setupBot;
-    sendTransactionNotification(telegramId: string, type: 'PENDING' | 'COMPLETED' | 'FAILED' | 'RECEIVED', amount: number, accountNumber: string): Promise<void>;
-    sendMessage(telegramId: string, message: string): Promise<void>;
-    onModuleDestroy(): void;
+    private showTransactions;
+    sendTransactionNotification(telegramId: string, type: 'COMPLETED' | 'RECEIVED' | 'PENDING' | 'FAILED', amount: number, accountNumber: string): Promise<void>;
+    sendDirectMessage(telegramId: string, message: string): Promise<{
+        success: boolean;
+        message: string;
+        error?: undefined;
+    } | {
+        success: boolean;
+        message: string;
+        error: any;
+    }>;
 }

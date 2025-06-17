@@ -11,8 +11,8 @@ export declare class AccountsService {
             id: string;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -33,8 +33,8 @@ export declare class AccountsService {
                 transactionsTo: number;
             };
         } & {
-            id: string;
             isActive: boolean;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             accountNumber: string;
@@ -58,8 +58,8 @@ export declare class AccountsService {
         };
         transactionsFrom: ({
             toAccount: {
-                id: string;
                 isActive: boolean;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -74,11 +74,11 @@ export declare class AccountsService {
                 id: string;
             };
         } & {
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -86,15 +86,14 @@ export declare class AccountsService {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
-            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
         transactionsTo: ({
             fromAccount: {
-                id: string;
                 isActive: boolean;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 accountNumber: string;
@@ -109,11 +108,11 @@ export declare class AccountsService {
                 id: string;
             };
         } & {
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            currency: string;
             fromAccountId: string | null;
             toAccountId: string | null;
             fromUserId: string;
@@ -121,14 +120,13 @@ export declare class AccountsService {
             amount: import("@prisma/client/runtime/library").Decimal;
             fee: import("@prisma/client/runtime/library").Decimal;
             status: import("@prisma/client").$Enums.TransactionStatus;
-            type: import("@prisma/client").$Enums.TransactionType;
             verificationCode: string | null;
             isVerified: boolean;
             verifiedAt: Date | null;
         })[];
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -144,8 +142,8 @@ export declare class AccountsService {
             id: string;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -161,8 +159,8 @@ export declare class AccountsService {
             id: string;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -171,8 +169,8 @@ export declare class AccountsService {
         userId: string;
     }>;
     remove(id: string, userId: string, userRole: string): Promise<{
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
@@ -186,8 +184,8 @@ export declare class AccountsService {
             transactionsTo: number;
         };
     } & {
-        id: string;
         isActive: boolean;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         accountNumber: string;
