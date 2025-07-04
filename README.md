@@ -199,7 +199,7 @@ Bot `nestjs-telegraf` kutubxonasi asosida yaratilgan va to‘liq backendga integ
 
 Agar savollaringiz yoki takliflaringiz bo‘lsa, quyidagi manzil orqali bog‘lanishingiz mumkin:
 
-📧 Email: your-email@example.com
+📧 Email: asilbekeshtemirov@gmail.com
 
 ---
 
